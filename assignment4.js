@@ -1,10 +1,10 @@
-import {defs, tiny} from './examples/common.js';
+import { defs, tiny } from './examples/common.js';
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
+    Vector, Vector3, vec, vec2, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
 } = tiny;
 
-const {Cube, Axis_Arrows, Textured_Phong} = defs
+const { Cube, Axis_Arrows, Textured_Phong } = defs
 
 export class Assignment4 extends Scene {
     /**
@@ -36,7 +36,12 @@ export class Assignment4 extends Scene {
             texture: new Material(new Textured_Phong(), {
                 color: hex_color("#ffffff"),
                 ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
-                texture: new Texture("assets/stars.png")
+                texture: new Texture("assets/cat_g.jpg", "NEAREST")
+            }),
+            texture2: new Material(new Textured_Phong(), {
+                color: hex_color("#ffffff"),
+                ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/cat_b.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
         }
 
@@ -65,7 +70,12 @@ export class Assignment4 extends Scene {
 
         // TODO:  Draw the required boxes. Also update their stored matrices.
         // You can remove the folloeing line.
-        this.shapes.axis.draw(context, program_state, model_transform, this.materials.phong.override({color: hex_color("#ffff00")}));
+        //this.shapes.axis.draw(context, program_state, model_transform, this.materials.phong.override({ color: hex_color("#ffff00") }));
+        this.shapes.box_1.draw(context, program_state, model_transform, this.materials.texture)
+
+        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(4, 0, 0)),
+            this.materials.texture2)
+
     }
 }
 
