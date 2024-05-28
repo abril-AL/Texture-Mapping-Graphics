@@ -25,6 +25,14 @@ export class Assignment4 extends Scene {
         }
         console.log(this.shapes.box_1.arrays.texture_coord)
 
+        const texture_coords = this.shapes.box_2.arrays.texture_coord;
+        for (let i = 0; i < texture_coords.length; i += 4) {
+            texture_coords[i] = [0, 0];
+            texture_coords[i + 1] = [2, 0];
+            texture_coords[i + 2] = [0, 2];
+            texture_coords[i + 3] = [2, 2];
+        }
+        console.log(this.shapes.box_2.arrays.texture_coord);
 
         // TODO:  Create the materials required to texture both cubes with the correct images and settings.
         //        Make each Material from the correct shader.  Phong_Shader will work initially, but when
@@ -71,9 +79,9 @@ export class Assignment4 extends Scene {
         // TODO:  Draw the required boxes. Also update their stored matrices.
         // You can remove the folloeing line.
         //this.shapes.axis.draw(context, program_state, model_transform, this.materials.phong.override({ color: hex_color("#ffff00") }));
-        this.shapes.box_1.draw(context, program_state, model_transform, this.materials.texture)
-
-        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(4, 0, 0)),
+        this.shapes.box_1.draw(context, program_state, model_transform.times(Mat4.translation(-2, 0, 0)),
+            this.materials.texture)
+        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(2, 0, 0)),
             this.materials.texture2)
 
     }
