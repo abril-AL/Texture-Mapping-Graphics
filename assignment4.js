@@ -149,6 +149,17 @@ class Texture_Rotate extends Textured_Phong {
 
                 // Sample the texture image in the correct place:
                 vec4 tex_color = texture2D( texture, rotated_tex_coord );
+
+                float sq_x = mod(rotated_tex_coord.x, 1.0);
+                float sq_y = mod(rotated_tex_coord.y, 1.0);
+
+                if ((sq_x > 0.15 && sq_x < 0.25 && sq_y > 0.15 && sq_y < 0.85) ||  
+                    (sq_x > 0.75 && sq_x < 0.85 && sq_y > 0.15 && sq_y < 0.85) ||  
+                    (sq_y > 0.15 && sq_y < 0.25 && sq_x > 0.15 && sq_x < 0.85) ||  
+                    (sq_y > 0.75 && sq_y < 0.85 && sq_x > 0.15 && sq_x < 0.85)) {  
+                        tex_color = vec4(0, 0, 0, 1.0);
+                }
+
                 if( tex_color.w < .01 ) discard;
                                                                          // Compute an initial (ambient) color:
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
