@@ -41,12 +41,12 @@ export class Assignment4 extends Scene {
             phong: new Material(new Textured_Phong(), {
                 color: hex_color("#ffffff"),
             }),
-            texture: new Material(new Texture_Scroll_X(), {
+            texture: new Material(new Texture_Rotate(), {
                 color: hex_color("#ffffff"),
                 ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/cat_g.jpg", "NEAREST")
             }),
-            texture2: new Material(new Texture_Rotate(), {
+            texture2: new Material(new Texture_Scroll_X(), {
                 color: hex_color("#ffffff"),
                 ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/cat_b.jpg", "LINEAR_MIPMAP_LINEAR")
@@ -88,9 +88,9 @@ export class Assignment4 extends Scene {
         if (this.rotate) {
             this.rot_t += dt;
         }
-        this.shapes.box_1.draw(context, program_state, model_transform.times(Mat4.translation(2, 0, 0)).times(b1_m),
+        this.shapes.box_1.draw(context, program_state, model_transform.times(Mat4.translation(-2, 0, 0)).times(b2_m),
             this.materials.texture)
-        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(-2, 0, 0)).times(b2_m),
+        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(2, 0, 0)).times(b1_m),
             this.materials.texture2)
     }
 }
@@ -128,8 +128,20 @@ class Texture_Rotate extends Textured_Phong {
             uniform sampler2D texture;
             uniform float animation_time;
             void main(){
+
+                float radians_per_second = -8.0 * 4.0 * 3.14159265359 / 60.0;
+                float rotation_angle = mod(animation_time * radians_per_second, 2.0 * 3.14159265359);
+
+                // rotate about the center
+                vec2 centered_tex_coord = f_tex_coord - vec2(0.5, 0.5);
+                vec2 rotated_tex_coord = vec2(
+                    centered_tex_coord.x * cos(rotation_angle) - centered_tex_coord.y * sin(rotation_angle),
+                    centered_tex_coord.x * sin(rotation_angle) + centered_tex_coord.y * cos(rotation_angle)
+                ) + vec2(0.5, 0.5);
+
+
                 // Sample the texture image in the correct place:
-                vec4 tex_color = texture2D( texture, f_tex_coord );
+                vec4 tex_color = texture2D( texture, rotated_tex_coord );
                 if( tex_color.w < .01 ) discard;
                                                                          // Compute an initial (ambient) color:
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
