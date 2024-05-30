@@ -107,13 +107,20 @@ class Texture_Scroll_X extends Textured_Phong {
             void main(){
 
                 vec2 new_tex_coord = vec2(f_tex_coord.x - animation_time * 0.4, f_tex_coord.y); // scrolled
-
-                // Sample the texture image in the correct place:
                 vec4 tex_color = texture2D( texture, new_tex_coord);
                 if( tex_color.w < .01 ) discard;
-                                                                         // Compute an initial (ambient) color:
+
+                float sq_x = mod(new_tex_coord.x, 1.0);
+                float sq_y = mod(new_tex_coord.y, 1.0);
+
+                if ((sq_x > 0.15 && sq_x < 0.25 && sq_y > 0.15 && sq_y < 0.85) ||  
+                    (sq_x > 0.75 && sq_x < 0.85 && sq_y > 0.15 && sq_y < 0.85) ||  
+                    (sq_y > 0.15 && sq_y < 0.25 && sq_x > 0.15 && sq_x < 0.85) ||  
+                    (sq_y > 0.75 && sq_y < 0.85 && sq_x > 0.15 && sq_x < 0.85)) {  
+                        tex_color = vec4(0, 0, 0, 1.0);
+                }
+
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
-                                                                         // Compute the final color with contributions from lights:
                 gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
         } `;
     }
