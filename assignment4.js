@@ -41,12 +41,12 @@ export class Assignment4 extends Scene {
             phong: new Material(new Textured_Phong(), {
                 color: hex_color("#ffffff"),
             }),
-            texture: new Material(new Textured_Phong(), {
+            texture: new Material(new Texture_Scroll_X(), {
                 color: hex_color("#ffffff"),
                 ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/cat_g.jpg", "NEAREST")
             }),
-            texture2: new Material(new Textured_Phong(), {
+            texture2: new Material(new Texture_Rotate(), {
                 color: hex_color("#ffffff"),
                 ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/cat_b.jpg", "LINEAR_MIPMAP_LINEAR")
@@ -56,8 +56,14 @@ export class Assignment4 extends Scene {
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
     }
 
+    rotate = false;
+    rot_speed = (15 * 2 * Math.PI) / 60; //15 rpm
+    rot_t = 0.00001;
     make_control_panel() {
         // TODO:  Implement requirement #5 using a key_triggered_button that responds to the 'c' key.
+        this.key_triggered_button("Cube Rotation", ["c"], () => this.rotate = !this.rotate);
+        this.new_line();
+        //this.key_triggered_button("Test", ["t"], () => console.log(this.rotate));
     }
 
     display(context, program_state) {
@@ -77,13 +83,15 @@ export class Assignment4 extends Scene {
         let model_transform = Mat4.identity();
 
         // TODO:  Draw the required boxes. Also update their stored matrices.
-        // You can remove the folloeing line.
-        //this.shapes.axis.draw(context, program_state, model_transform, this.materials.phong.override({ color: hex_color("#ffff00") }));
-        this.shapes.box_1.draw(context, program_state, model_transform.times(Mat4.translation(-2, 0, 0)),
+        let b1_m = Mat4.rotation(this.rot_speed * this.rot_t, 0, 1, 0);
+        let b2_m = Mat4.rotation(this.rot_speed * this.rot_t, 1, 0, 0);
+        if (this.rotate) {
+            this.rot_t += dt;
+        }
+        this.shapes.box_1.draw(context, program_state, model_transform.times(Mat4.translation(2, 0, 0)).times(b1_m),
             this.materials.texture)
-        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(2, 0, 0)),
+        this.shapes.box_2.draw(context, program_state, model_transform.times(Mat4.translation(-2, 0, 0)).times(b2_m),
             this.materials.texture2)
-
     }
 }
 
@@ -92,13 +100,16 @@ class Texture_Scroll_X extends Textured_Phong {
     // TODO:  Modify the shader below (right now it's just the same fragment shader as Textured_Phong) for requirement #6.
     fragment_glsl_code() {
         return this.shared_glsl_code() + `
-            varying vec2 f_tex_coord;
+            varying vec2 f_tex_coord;// pre interpolated
             uniform sampler2D texture;
             uniform float animation_time;
             
             void main(){
+
+                vec2 new_tex_coord = vec2(f_tex_coord.x - animation_time * 0.4, f_tex_coord.y); // scrolled
+
                 // Sample the texture image in the correct place:
-                vec4 tex_color = texture2D( texture, f_tex_coord);
+                vec4 tex_color = texture2D( texture, new_tex_coord);
                 if( tex_color.w < .01 ) discard;
                                                                          // Compute an initial (ambient) color:
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
